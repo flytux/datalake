@@ -15,6 +15,8 @@ data:
     jobmanager.memory.process.size: 1600m
     taskmanager.memory.process.size: 1728m
     parallelism.default: 2
+    state.backend.local-recovery: true
+    process.taskmanager.working-dir: /pv    
   log4j-console.properties: |+
     # This affects logging for both user code and Flink
     rootLogger.level = INFO
@@ -126,11 +128,22 @@ spec:
           - key: log4j-console.properties
             path: log4j-console.properties
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskmanager-hl
+spec:
+  clusterIP: None
+  selector:
+    app: flink
+    component: taskmanager
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: flink-taskmanager
 spec:
+  serviceName: taskmanager-hl
   replicas: 2
   selector:
     matchLabels:
@@ -142,15 +155,25 @@ spec:
         app: flink
         component: taskmanager
     spec:
+      securityContext:
+        runAsUser: 9999
+        fsGroup: 9999
       containers:
       - name: taskmanager
         image: apache/flink:dev
-        args: ["taskmanager"]
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+        args: ["taskmanager", "-Dtaskmanager.resource-id=$(POD_NAME)"]
         ports:
         - containerPort: 6122
           name: rpc
         - containerPort: 6125
           name: query-state
+        - containerPort: 6121
+          name: metrics
         livenessProbe:
           tcpSocket:
             port: 6122
@@ -159,8 +182,8 @@ spec:
         volumeMounts:
         - name: flink-config-volume
           mountPath: /opt/flink/conf/
-        securityContext:
-          runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
+        - name: pv
+          mountPath: /pv
       volumes:
       - name: flink-config-volume
         configMap:
@@ -170,6 +193,14 @@ spec:
             path: flink-conf.yaml
           - key: log4j-console.properties
             path: log4j-console.properties
+  volumeClaimTemplates:
+  - metadata:
+      name: pv
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
 
 ---
 apiVersion: networking.k8s.io/v1
