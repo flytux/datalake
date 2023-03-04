@@ -99,7 +99,7 @@ spec:
     spec:
       containers:
       - name: jobmanager
-        image: apache/flink:dev
+        image: flink:dev
         args: ["jobmanager"]
         ports:
         - containerPort: 6123
@@ -160,7 +160,7 @@ spec:
         fsGroup: 9999
       containers:
       - name: taskmanager
-        image: apache/flink:dev
+        image: flink:dev
         env:
           - name: POD_NAME
             valueFrom:

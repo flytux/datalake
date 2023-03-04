@@ -29,7 +29,7 @@ spec:
         name: mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: debezium
+          value: "debezium"
         - name: MYSQL_USER
           value: mysqluser
         - name: MYSQL_PASSWORD
