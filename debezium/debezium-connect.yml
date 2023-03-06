@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium-connect
+  namespace: kafka
+spec:
+  selector:
+    matchLabels:
+      app: debezium-connect
+  template:
+    metadata:
+      labels:
+        app: debezium-connect
+    spec:
+      containers:
+      - env:
+        - name: GROUP_ID
+          value: "1"
+        - name: CONFIG_STORAGE_TOPIC
+          value: my_connect_configs
+        - name: OFFSET_STORAGE_TOPIC
+          value: my_connect_offsets
+        - name: STATUS_STORAGE_TOPIC
+          value: my_connect_statuses
+        image: debezium-jdbc:2.1
+        imagePullPolicy: IfNotPresent
+        name: debezium-connect
+        ports:
+        - containerPort: 8083
+          name: tcp
+          protocol: TCP
+      nodeSelector:
+        kubernetes.io/hostname: kw021.novalocal
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debezium-connect
+spec:
+  ports:
+  - port: 8083
+    targetPort: 8083
+    nodePort: 30883
+  selector:
+    app: debezium-connect
+  type: NodePort

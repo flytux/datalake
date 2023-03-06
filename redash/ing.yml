@@ -1,0 +1,23 @@
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: redash.kw02
+    namespace: redash
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: redash.kw02
+      http:
+        paths:
+        - backend:
+            service:
+              name: redash
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+kind: List
+metadata:
+  resourceVersion: ""
