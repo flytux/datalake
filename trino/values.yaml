@@ -272,3 +272,8 @@ additionalCatalogs:
     connection-url=jdbc:postgresql://postgres.postgres:5432/inventory
     connection-user=postgresuser
     connection-password=postgrespw
+  mysql: |-
+    connector.name=mysql
+    connection-url=jdbc:mysql://mysql.mysql:3306
+    connection-user=root
+    connection-password=debezium
