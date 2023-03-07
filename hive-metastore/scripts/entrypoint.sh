@@ -3,12 +3,10 @@
 export HADOOP_HOME=/opt/hadoop-3.2.0
 export HADOOP_CLASSPATH=${HADOOP_HOME}/share/hadoop/tools/lib/aws-java-sdk-bundle-1.11.375.jar:${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-aws-3.2.0.jar
 export JAVA_HOME=/usr/local/openjdk-8
-export METASTORE_DB_HOSTNAME=${METASTORE_DB_HOSTNAME:-localhost}
+export METASTORE_DB_HOSTNAME=${METASTORE_DB_HOSTNAME}
 
-MYSQL='mysql'
-POSTGRES='postgres'
 
-if [ "${METASTORE_TYPE}" = "${MYSQL}" ]; then
+if [ "${METASTORE_TYPE}" = "mysql" ]; then
   echo "Waiting for database on ${METASTORE_DB_HOSTNAME} to launch on 3306 ..."
   while ! nc -z ${METASTORE_DB_HOSTNAME} 3306; do
     sleep 1
@@ -17,11 +15,11 @@ if [ "${METASTORE_TYPE}" = "${MYSQL}" ]; then
   echo "Database on ${METASTORE_DB_HOSTNAME}:3306 started"
   echo "Init apache hive metastore on ${METASTORE_DB_HOSTNAME}:3306"
 
-  /opt/apache-hive-metastore-3.0.0-bin/bin/schematool -initSchema -dbType mysql
+  /opt/apache-hive-metastore-3.0.0-bin/bin/schematool -initSchema -dbType mysql -userName ${MYSQL_USER} -passWord ${MYSQL_PASSWORD}
   /opt/apache-hive-metastore-3.0.0-bin/bin/start-metastore
 fi
 
-if [ "${METASTORE_TYPE}" = "${POSTGRES}" ]; then
+if [ "${METASTORE_TYPE}" = "postgres" ]; then
   echo "Waiting for database on ${METASTORE_DB_HOSTNAME} to launch on 5432 ..."
   while ! nc -z ${METASTORE_DB_HOSTNAME} 5432; do
     sleep 1
