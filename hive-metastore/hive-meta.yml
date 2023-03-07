@@ -32,21 +32,11 @@ spec:
         app: hive-metastore
     spec:
       containers:
-      - image: 192.168.0.18:30005/hive-metastore:dev
+      - image: bitsondatadev/hive-metastore:latest
         name: hive-metastore
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: "debezium"
-        - name: MYSQL_USER
-          value: mysqluser
-        - name: MYSQL_PASSWORD
-          value: mysqlpw
-        - name: MYSQL_DATABASE
-          value: metastore_db
-        - name: METASTORE_TYPE
-          value: mysql
         - name: METASTORE_DB_HOSTNAME
-          value: mysql.mysql
+          value: "mariadb"
         ports:
         - containerPort: 9083
           name: hive-metastore
@@ -58,3 +48,66 @@ spec:
         - name: hive-metastore-config
           configMap:
             name: hive-metastore-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mariadb
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - image: mariadb:latest
+        name: mariadb
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "admin"
+        - name: MYSQL_USER
+          value: admin
+        - name: MYSQL_PASSWORD
+          value: admin
+        - name: MYSQL_DATABASE
+          value: metastore_db
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mariadb-pv
+      volumes:
+        - name: mariadb-pv
+          persistentVolumeClaim:
+            claimName: mariadb-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: mariadb
+  name: mariadb-pvc
+spec:
+  storageClassName: local-path
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

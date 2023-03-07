@@ -1,3 +1,5 @@
+resources:
+- hive-meta.yml
 configMapGenerator:
 - name: hive-metastore-config
   files:
