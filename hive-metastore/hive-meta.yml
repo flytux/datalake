@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hive
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hive-metastore
+  namespace: hive
+spec:
+  ports:
+  - port: 9083
+  selector:
+    app: hive-metastore
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-metastore
+  namespace: hive
+spec:
+  selector:
+    matchLabels:
+      app: hive-metastore
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: hive-metastore
+    spec:
+      containers:
+      - image: 192.168.0.18:30005/hive-metastore:dev
+        name: hive-metastore
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "debezium"
+        - name: MYSQL_USER
+          value: mysqluser
+        - name: MYSQL_PASSWORD
+          value: mysqlpw
+        - name: MYSQL_DATABASE
+          value: metastore_db
+        - name: METASTORE_TYPE
+          value: mysql
+        - name: METASTORE_DB_HOSTNAME
+          value: mysql.mysql
+        ports:
+        - containerPort: 9083
+          name: hive-metastore
+        volumeMounts:
+        - mountPath: /opt/apache-hive-metastore-3.0.0-bin/conf/
+          name: hive-metastore-config
+          readOnly: true
+      volumes:
+        - name: hive-metastore-config
+          configMap:
+            name: hive-metastore-config

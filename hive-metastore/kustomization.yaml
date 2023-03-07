@@ -1,0 +1,6 @@
+configMapGenerator:
+- name: hive-metastore-config
+  files:
+  - metastore-site.xml
+generatorOptions:
+ disableNameSuffixHash: true
