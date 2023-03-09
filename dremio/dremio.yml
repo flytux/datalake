@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dremio
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dremio
+  namespace: dremio
+spec:
+  ports:
+  - port: 9047
+  selector:
+    app: dremio
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dremio
+  namespace: dremio
+spec:
+  selector:
+    matchLabels:
+      app: dremio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dremio
+    spec:
+      containers:
+      - image: dremio/dremio-oss
+        name: dremio
