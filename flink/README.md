@@ -1,10 +1,20 @@
-### Docker 이미지 빌드 및 클러스터 기동
+### 1) Flink 이미지 빌드 및 서비스 구동  
+
+- Debezium Workshop 환경을 기반으로 수행합니다.
+- mysql / postgres 데이터베이스를 클러스터 내에 구성하여 연결합니다.
+- flink 서비스를 이용하여 Data Source와 Target의 실시간 동기화 파이프라인을 구성합니다.
+ 
 
 ```bash
+# flink 컨테이너 이미지를 빌드합니다.
 $ nerdctl build -t apache/flink:dev .
+
+# flink 서비스를 기동합니다.
 $ k create ns flink
 $ k apply -f flink.yml -n flink
 ```
+
+---
 
 ### Flink SQL Client 실행
 
