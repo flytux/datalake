@@ -16,7 +16,7 @@ $ k apply -f flink.yml -n flink
 
 ---
 
-### Flink SQL Client 실행
+### 2) Flink SQL Client 실행
 
 ```bash
 $ k exec -it flink-Jobmanager ./bin/sql-client.sh
@@ -41,7 +41,9 @@ CREATE TABLE customers (
 SELECT * FROM customers;
 ```
 
-### MySQL 소스 데이터 update
+---
+
+### 3) MySQL 소스 데이터 update
 
 ```bash
 $ k exec -it mysql-6fc7c66c64-5dvsg bash
@@ -50,7 +52,9 @@ $ mysql -u root -p debezium
 $ UPDATE customers SET first_name='Anne Marie' WHERE id=1004;
 ```
 
-### CDC 결과 확인
+---
+
+### 4) CDC 결과 확인
 
 ```bash
 # Postgres 테이블 생성
@@ -64,8 +68,9 @@ CREATE TABLE customers (
 	email VARCHAR ( 255 ),
 );
 ```
+---
 
-### new_customer 생성
+### 5) new_customer 생성
 
 ```bash
 Flink SQL> CREATE TABLE new_customers (
@@ -82,7 +87,10 @@ Flink SQL> CREATE TABLE new_customers (
    'password' = 'postgrespw'
 );
 ```
-### customer --> new_customer insert 쿼리로 ETL 처리
+
+---
+
+### 6) customer --> new_customer insert 쿼리로 ETL 처리
 
 ```bash
 Flink SQL> INSERT INTO new_customers
