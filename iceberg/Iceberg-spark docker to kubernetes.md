@@ -1,4 +1,4 @@
-# Iceberg spark docker to kubernetes
+# Iceberg Spark Rest - JDBC metastore - postgres - Minio data store docker
 
 - https://tabular.io/blog/docker-spark-and-iceberg/
 - https://iceberg.apache.org/spark-quickstart/
