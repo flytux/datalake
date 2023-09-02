@@ -98,6 +98,7 @@ services:
       - CATALOG_WAREHOUSE=s3://iceberg/
       - CATALOG_IO__IMPL=org.apache.iceberg.aws.s3.S3FileIO
       - CATALOG_S3_ENDPOINT=http://minio:9000
+      - REST_PORT=8181
       # catalog configuration to postgres db
       - CATALOG_CATALOG__IMPL=org.apache.iceberg.jdbc.JdbcCatalog
       - CATALOG_URI=jdbc:postgresql://192.168.45.75:30432/icebergcat
