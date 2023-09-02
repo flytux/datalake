@@ -1,0 +1,62 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: iceberg
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: iceberg
+  name: rest
+  labels:
+    component: rest
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      component: rest
+  template:
+    metadata:
+      labels:
+        component: rest
+    spec:
+      containers:
+      - name: rest
+        image: tabulario/iceberg-rest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          value: minio
+        - name: AWS_SECRET_ACCESS_KEY
+          value: minio123
+        - name: AWS_REGION
+          value: us-east-1
+        - name: CATALOG_WAREHOUSE
+          value: s3://iceberg/wherehouse
+        - name: CATALOG_IO__IMPL
+          value: org.apache.iceberg.aws.s3.S3FileIO
+        - name: CATALOG_S3_ENDPOINT
+          value: http://192.168.121.181:30090
+        - name: REST_PORT
+          value: '8181'
+        ports:
+        - containerPort: 8181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: iceberg
+  name: rest
+  labels:
+    component: rest
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8181
+      targetPort: 8181
+      protocol: TCP
+      name: api
+  selector:
+    component: rest
