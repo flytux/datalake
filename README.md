@@ -7,6 +7,6 @@
  - Datastream API와 Table API를 이용하여 stream 변환이 유리하다.
  - aws emr 및 google dataproc에서 사용되는 opensource
       
-## 3. Trino를 이용한 분산 쿼리
- - trino connector에 rdbms와 datasource 등을 추가하고,
- - 통합 쿼리를 수행
+## 3. Iceberg를 이용한 datalake 와 RDBMS 통합 쿼리
+ - trino connector에 iceberg catalog, postres, mysql catalog을 추가하고
+ - 멀티 데이터 소스에 대한 통합 쿼리 및 데이터 처리 지원
