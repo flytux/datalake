@@ -1,0 +1,82 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: iceberg
+  name: trino-coordinator
+  labels:
+    component: trino
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      component: trino
+  template:
+    metadata:
+      labels:
+        component: trino
+    spec:
+      containers:
+      - name: trino-coordinator
+        image: trinodb/trino:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: web
+        volumeMounts:
+          - name: iceberg-catalog-config
+            mountPath: /etc/trino/catalog/iceberg.properties
+            subPath: iceberg.properties
+          - name: postgres-catalog-config
+            mountPath: /etc/trino/catalog/postgres.properties
+            subPath: postgres.properties
+          - name: mysql-catalog-config
+            mountPath: /etc/trino/catalog/mysql.properties
+            subPath: mysql.properties
+      volumes:
+        - name: iceberg-catalog-config
+          configMap:
+            name: iceberg-catalog
+        - name: postgres-catalog-config
+          configMap:
+            name: postgres-catalog
+        - name: mysql-catalog-config
+          configMap:
+            name: mysql-catalog
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: iceberg
+  name: trino
+  labels:
+    component: trion
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: web
+  selector:
+    component: trino
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: trino.kw01
+  namespace: iceberg
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: trino.kw01
+    http:
+      paths:
+      - backend:
+          service:
+            name: trino
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix

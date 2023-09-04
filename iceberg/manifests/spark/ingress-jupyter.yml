@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jupyter.kw01
+  namespace: iceberg
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: jupyter.kw01
+    http:
+      paths:
+      - backend:
+          service:
+            name: spark-iceberg
+            port:
+              number: 8888
+        path: /
+        pathType: Prefix
